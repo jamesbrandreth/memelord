@@ -23,7 +23,9 @@ void index(string root_filepath, string output_filepath) {
     ocr->Init(NULL, "eng", tesseract::OEM_LSTM_ONLY);
     ocr->SetPageSegMode(tesseract::PSM_AUTO);
 
-    regex whitespace("\\s+");
+    regex commas(",");
+    regex whitespace("(\\s+)");
+    regex nonword("([^a-zA-Z0-9 ])");
 
     string index_filepath = root_filepath + "/.memes_index";
     // Check for existing index file
@@ -53,18 +55,21 @@ void index(string root_filepath, string output_filepath) {
             ocr->SetImage(im.data, im.cols, im.rows, 3, im.step);
             string text = string(ocr->GetUTF8Text());
 
-            regex_replace(text, whitespace, " ");
+            transform(text.begin(), text.end(), text.begin(), ::tolower);
+            text = regex_replace(text, whitespace, " ");
+            text = regex_replace(text, nonword, "");
+            text = regex_replace(text, commas, "");
 
-            stringstream textstream(text);
+            stringstream text_stream(text);
             string token;
             vector<string> tokens;
-            while (getline(textstream, token, ' ')) {
+            while (getline(text_stream, token, ' ')) {
                 tokens.push_back(token);
             }
 
             vector<string> clean_tokens;
             for (auto & t : tokens) {
-                if (t.size() > 3) {
+                if (t.length() > 3) {
                     clean_tokens.push_back(t);
                     cout << t << endl;
                 }
