@@ -2,6 +2,8 @@
 
 A simple search tool for memes.
 
+Memelord extracts text from the images in a folder and indexes them. It can then search the folder for images by keyword.
+
 ## Usage
 
 ### Indexing
